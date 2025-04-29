@@ -46,7 +46,7 @@ The full specification is documented in:
 
 ## 📜 License
 
-MIT License – See [`LICENSE`](./LICENSE) for details.  
+MIT License – See [`LICENSE`](https://github.com/rfigurelli/Collective-Prompts/blob/main/LICENSE) for details.  
 Attribution required for reuse of conceptual architecture, frameworks, or terminology.
 
 ---
