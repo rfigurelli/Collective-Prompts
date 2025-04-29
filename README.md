@@ -54,8 +54,6 @@ Attribution required for reuse of conceptual architecture, frameworks, or termin
 ## 👤 Author
 
 **Rogério Figurelli**  
-Email: [to be added]  
-LinkedIn/GitHub: [to be added]
 
 ---
 
