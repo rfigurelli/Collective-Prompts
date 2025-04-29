@@ -41,26 +41,81 @@ Collective Prompts is not a product but a **protocol and architecture** built o
 
 ## 3  Architecture Overview
 
-### 3.1  Key Components
+Collective Prompts is organised in **three logical layers** that can be deployed independently or as an integrated stack:
 
-- **Prompt Session Orchestrator:** manages the prompt lifecycle, dispatching tasks and collecting results.
-- **Prompt Agent Pool:** specialised LLM agents (clarity, fact‑check, creativity, etc.).
-- **Human Contributor Interface:** real‑time editing, rating and discussion board.
-- **RAG Testing Sandbox:** live document retrieval and generation chains [4].
-- **Consensus Engine:** aggregates metrics and votes, surfacing the best variants.
+| Layer | Purpose | Typical Technologies |
+|-------|---------|----------------------|
+| **Interface Layer** | Real‑time collaboration UI for humans; visualises variants, votes and metrics. | Web client (React/Next.js), WebSockets for live updates, OAuth/SSO for identity. |
+| **Orchestration Layer** | Coordinates agents, human inputs and evaluation pipelines. | Python (FastAPI), task queue (Celery / Ray), event bus (Redis Streams / NATS). |
+| **Execution Layer** | Runs LLM calls, RAG retrieval, synthetic eval and metric computation. | OpenAI API, local OSS models, vector store (FAISS / PGVector), evaluation harness (LangChain, Ragas). |
 
-### 3.2  Real‑Time Flow
+### 3.1  Key Components (Expanded)
 
-1. A user or agent submits a base prompt.
-2. Agents and humans generate variants in parallel.
-3. Each version is tested via RAG or synthetic evaluation.
-4. Metrics (relevance, faithfulness, fluency) are computed.
-5. Top candidates are surfaced for further iteration.
-6. The winning prompt is pushed to the target LLM or saved as a template.
+1. **Prompt Session Orchestrator**  
+   *Creates a dedicated workspace for each prompt.* Tracks state, dispatches tasks, persists artefacts. Uses a finite‑state machine so steps (generate → test → evaluate → vote) can run idempotently or resume after failure.
+
+2. **Prompt Agent Pool**  
+   A registry of specialised LLM wrappers, each tagged with capabilities and cost profile (e.g., *clarity‑gpt‑turbo*, *risk‑check‑claude*). The Orchestrator schedules agents in parallel and aggregates their JSON‑schema responses.
+
+3. **Human Contributor Interface**  
+   Presents a columnar “variant board” plus chat‑style discussion. Inline slash‑commands (`/rewrite concise`, `/ask agent risk`) spawn new agent jobs on demand.
+
+4. **RAG Testing Sandbox**  
+   Spins up ephemeral chains that combine retrieval (vector search + keyword fallback) with generation. Each variant is executed with identical retrieval context to ensure fairness. Sandbox can run locally for dev or on serverless GPU nodes for scale.
+
+5. **Consensus Engine**  
+   Normalises metrics (BLEU, ROUGE, response length, grounding score) and combines them with human votes via a weighted Borda count. Produces a ranked list and triggers automatic promotion of the top variant when confidence ≥ τ.
+
+6. **Audit & Telemetry Store**  
+   Every message, score and decision is logged to a time‑series DB (TimescaleDB). A Grafana dashboard shows latency, cost per iteration and agent hit‑rates.
+
+### 3.2  Real‑Time Flow (Detailed Sequence)
+
+```
+┌─ 1. submit_prompt ───────────────────────────┐
+│ user / agent sends base prompt               │
+└──────────────────────────────────────────────┘
+            │
+            ▼
+┌─ 2. spawn_agents ────────────────────────────┐
+│ Orchestrator schedules N specialised agents  │
+└──────────────────────────────────────────────┘
+            │           ▲ (web UI)
+            │           │ live edits / votes
+            ▼           │
+┌─ 3. run_RAG_tests ───────────────────────────┐
+│ each variant executed in sandbox, metrics out│
+└──────────────────────────────────────────────┘
+            │
+            ▼
+┌─ 4. consensus_engine ────────────────────────┐
+│ merges metrics + votes; ranks variants       │
+└──────────────────────────────────────────────┘
+            │
+            ▼
+┌─ 5. promote_top_variant ─────────────────────┐
+│ top prompt sent to target LLM or stored      │
+└──────────────────────────────────────────────┘
+```
+
+*Latency targets:* < 5 s for first agent responses; < 20 s to surface a ranked list under normal load (GPT‑4 class models, ≤ 10 variants).
+
+### 3.3  Deployment Topology (Reference)
+
+- **Single‑tenant SaaS:** all layers in one Kubernetes namespace; horizontal auto‑scaling on agent pods.  
+- **Enterprise on‑prem:** Interface/Orchestration inside DMZ; Execution Layer with confidential data stays on internal GPU cluster.  
+- **Local notebook mode:** lightweight SQLite + local LLM for researchers.
+
+### 3.4  Extensibility Hooks
+
+- **Agent SDK:** contribute new agents by implementing `generate(prompt_variant) → {suggestion, rationale}`.  
+- **Metric Plugins:** register custom scorers (eg, toxicity, factual consistency against domain KB).  
+- **Event Triggers:** webhooks on state transitions (`on_variant_promoted`, `on_metric_threshold`).
 
 ---
 
 ## 4  Differentiators from Traditional RAG Systems
+  Differentiators from Traditional RAG Systems
 
 Traditional RAG pipelines integrate retrieval into generation but remain linear and single‑user [1]. They treat prompts as fixed inputs, offer little real‑time iteration and lack community refinement.
 
