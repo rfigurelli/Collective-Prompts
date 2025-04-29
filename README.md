@@ -30,7 +30,7 @@ Prompt creation can be:
 ## 📄 White Paper
 
 The full specification is documented in:  
-**[`Collective_Prompts_White_Paper_v1_0.md`](./Collective_Prompts_White_Paper_v1_0.md)**
+**[`Collective_Prompts_White_Paper_v1_0.md`](https://github.com/rfigurelli/Collective-Prompts/blob/main/Collective_Prompts_White_Paper_v1_0.md)**
 
 ---
 
