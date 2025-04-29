@@ -50,10 +50,3 @@ MIT License – See [`LICENSE`](https://github.com/rfigurelli/Collective-Prompts
 Attribution required for reuse of conceptual architecture, frameworks, or terminology.
 
 ---
-
-## 👤 Author
-
-**Rogério Figurelli**  
-
----
-
