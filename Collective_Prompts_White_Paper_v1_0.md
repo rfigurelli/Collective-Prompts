@@ -72,30 +72,30 @@ Collective Prompts is organised in **three logical layers** that can be deploy
 ### 3.2  Real‑Time Flow (Detailed Sequence)
 
 ```
-┌─ 1. submit_prompt ───────────────────────────┐
-│ user / agent sends base prompt               │
-└──────────────────────────────────────────────┘
+┌─ 1. submit_prompt ──────────────────────────┐
+│ user / agent sends base prompt              │
+└─────────────────────────────────────────────┘
             │
             ▼
-┌─ 2. spawn_agents ────────────────────────────┐
-│ Orchestrator schedules N specialised agents  │
-└──────────────────────────────────────────────┘
+┌─ 2. spawn_agents ───────────────────────────┐
+│ Orchestrator schedules N specialised agents │
+└─────────────────────────────────────────────┘
             │           ▲ (web UI)
             │           │ live edits / votes
             ▼           │
-┌─ 3. run_RAG_tests ───────────────────────────┐
-│ each variant executed in sandbox, metrics out│
-└──────────────────────────────────────────────┘
+┌─ 3. run_RAG_tests ──────────────────────────┐
+│ each variant executed in sandbox, metrics   │
+└─────────────────────────────────────────────┘
             │
             ▼
-┌─ 4. consensus_engine ────────────────────────┐
-│ merges metrics + votes; ranks variants       │
-└──────────────────────────────────────────────┘
+┌─ 4. consensus_engine ───────────────────────┐
+│ merges metrics + votes; ranks variants      │
+└─────────────────────────────────────────────┘
             │
             ▼
-┌─ 5. promote_top_variant ─────────────────────┐
-│ top prompt sent to target LLM or stored      │
-└──────────────────────────────────────────────┘
+┌─ 5. promote_top_variant ────────────────────┐
+│ top prompt sent to target LLM or stored     │
+└─────────────────────────────────────────────┘
 ```
 
 *Latency targets:* < 5 s for first agent responses; < 20 s to surface a ranked list under normal load (GPT‑4 class models, ≤ 10 variants).
