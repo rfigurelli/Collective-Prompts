@@ -1,2 +1,2 @@
 # Collective Prompts  
-**Collective Prompts** is a novel architectural framework for creating, refining, and validating prompts collaboratively in real time. It merges human intelligence, autonomous agents, and live retrieval-augmented generation (RAG) testing to treat prompts not as static commands, but as living, evolving artifacts.
+Collective Prompts is a novel architecture that enables real-time, multi-agent, collaborative refinement of prompts using distributed intelligence, and proposes a mesh of agents—human and artificial—working in parallel to evaluate, refine, and reinforce prompts in real time.
